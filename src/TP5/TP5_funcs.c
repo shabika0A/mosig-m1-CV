@@ -1,40 +1,63 @@
 #include "TP5_funcs.h"
 #include "../Utils/Util.h"
 #include <stdlib.h>
+#include <limits.h>
 
 ppm_file kmeans(ppm_file image, int K, int init, int stop, int location) {
-    // printf("PLEASE IMPLEMENT kmeans\n");
-    //array of K center
+    int num_pixels = image.rows * image.cols;
     pixel *centers = malloc(K * sizeof(pixel));
-    //assign the location randomly to the centroids to start
-    // if (init == 0) {
+    int *label_image = malloc(num_pixels * sizeof(int));
+
 
     for (int i = 0; i < K; i++) {
-        if(init==0){// so we have to initialize the centers randomly
+        if (init == 0) {
             centers[i].red = rand() % 256;
             centers[i].green = rand() % 256;
             centers[i].blue = rand() % 256;
         }
     }
 
-    // label_image label_image = (*label_image) malloc(sizeof(label_image));
-    int* label_image  = malloc (image.rows*image.cols*sizeof(int));
+    // 2. Run K-means iterations
+    int max_iterations = (stop > 0) ? stop : 10;
     int round_counter = 0;
-    
-    // or centers not move anymore
-    while (round_counter < stop ){
-        update_labels(image,label_image, K, centers);
-        update_centers(image,label_image, K, centers);  
+
+    while (round_counter < max_iterations) {
+        pixel *prev_centers = malloc(K * sizeof(pixel));
+        for (int j = 0; j < K; j++) {
+            prev_centers[j] = centers[j];
+        }
+
+        update_labels(image, label_image, K, centers);
+        update_centers(image, label_image, K, centers);
         round_counter++;
-        /// check stop condition
-        // do it with a have moved bool or if we got the max number of rounds
-        ///////// where does the seed come from and how is it used in the main func
-        //  ////meaning of stop condition?
+
+        // Stop early if no centroid changed
+        int moved = 0;
+        for (int j = 0; j < K; j++) {
+            if (centers[j].red != prev_centers[j].red ||
+                centers[j].green != prev_centers[j].green ||
+                centers[j].blue != prev_centers[j].blue) {
+                moved = 1;
+                break;
+            }
+        }
+        free(prev_centers);
+
+        if (!moved) {
+            break;
+        }
     }
 
-    ppm_file output_image;
+    // 3. Build output image 
+    ppm_file output_image = image;
+    output_image.pixmap = malloc(num_pixels * sizeof(pixel));
+    for (int i = 0; i < num_pixels; i++) {
+        int cluster = label_image[i];
+        output_image.pixmap[i] = centers[cluster];
+    }
 
-    output_image = image;
+    free(label_image);
+    free(centers);
 
     return output_image;
 }
@@ -48,9 +71,9 @@ void update_labels (ppm_file image,int* label_image, int K, pixel* centers){
         int closest_distance = 256*256*3; //square of max distance possible in RGB space
         for (int j = 0; j < K; j++){
             pixel current_center = centers[j];
-            int distance = (current_pixel.red - current_center.red) * (current_pixel.red - current_center.red) +
-                            (current_pixel.green - current_center.green) * (current_pixel.green - current_center.green) +
-                            (current_pixel.blue - current_center.blue) * (current_pixel.blue - current_center.blue);
+            int distance = ((int)current_pixel.red - (int)current_center.red) * ((int)current_pixel.red - (int)current_center.red) +
+                            ((int)current_pixel.green - (int)current_center.green) * ((int)current_pixel.green - (int)current_center.green) +
+                            ((int)current_pixel.blue - (int)current_center.blue) * ((int)current_pixel.blue - (int)current_center.blue);
             if (distance < closest_distance){
                 closest_distance = distance;
                 closest_center_index = j;
