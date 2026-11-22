@@ -31,7 +31,11 @@ typedef struct {
   int maxval;
 } ppm_file;
 
-
+typedef struct {
+  pixel pix;
+  int i;
+  int j;
+} centroid;
 
 // A structure to contain the information of a histogram
 typedef struct {
