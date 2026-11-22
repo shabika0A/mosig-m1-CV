@@ -37,10 +37,19 @@ typedef struct {
   int j;
 } centroid;
 
-// A structure to contain the information of a histogram
 typedef struct {
-  int *histogram;
-  unsigned int size;
-} histogram_t;
+  bit red;
+  bit green;
+  bit blue;
+  bit alpha;
+} pixel_PAM;
+
+typedef struct {
+  pixel_PAM *pixmap;
+  char magic_number;
+  int rows;
+  int cols;
+  int maxval;
+} pam_file;
 
 #endif

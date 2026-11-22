@@ -120,12 +120,12 @@ void update_centers(ppm_file image, int* label_image, int K, centroid *centers) 
             }
         }
         
-        if (cluster_size > 0) {
-            centers[j].pix.red = sum_red / cluster_size;
-            centers[j].pix.green = sum_green / cluster_size;
-            centers[j].pix.blue = sum_blue / cluster_size;
-            centers[j].i = sum_i / cluster_size;
-            centers[j].j = sum_j / cluster_size;
+        if (cluster_size > 0){
+            centers[j].red = sum_red / cluster_size;
+            centers[j].green = sum_green / cluster_size;
+            centers[j].blue = sum_blue / cluster_size;
         }
     }
 }
+
+
